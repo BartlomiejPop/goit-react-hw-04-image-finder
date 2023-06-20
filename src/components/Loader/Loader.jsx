@@ -3,8 +3,8 @@ import { Audio } from 'react-loader-spinner';
 
 export const Loader = () => {
   return (
-    <div className={styles.loaderBg}>
-      <div className={styles.loader}>
+    <div class={styles.loaderBg}>
+      <div class={styles.loader}>
         <Audio
           height="80"
           width="80"

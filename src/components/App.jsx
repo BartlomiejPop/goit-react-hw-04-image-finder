@@ -1,4 +1,4 @@
-import * as basicLightbox from 'basiclightbox';
+import styles from '../styles.module.css';
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Searchbar } from './Searchbar/Searchbar';
@@ -94,23 +94,13 @@ export class App extends Component {
   };
 
   showModal = image => {
-    this.setState({ modal: [image.src, image.alt] });
-    setTimeout(() => {
-      console.log(this.state.modal[0]);
-      const instance = basicLightbox.create(`
-    <div class="overlay">
-      <div classname="modal">
-        <img src=${this.state.modal[0]} alt=${this.state.modal[1]} />
-      </div>
-    </div>
-  `);
-      instance.show();
-    }, 200);
+    const photo = this.state.images.filter(el => el.webformatURL === image.src);
+    this.setState({ modal: [photo[0].largeImageURL, image.alt] });
   };
 
   render() {
     return (
-      <div>
+      <div className={styles.App}>
         <>{this.state.isLoading && <Loader />}</>
         <Searchbar onSubmit={this.searchForImages} onChange />
         <>
@@ -119,7 +109,7 @@ export class App extends Component {
           )}
         </>
         <Button onClick={this.loadMore} />
-        {/* <Modal image={this.state.modal === [] ? '' : this.state.modal} /> */}
+        <>{this.state.modal.length > 0 && <Modal image={this.state.modal} />}</>
       </div>
     );
   }
