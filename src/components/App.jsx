@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-// import { ImageGalleryItem } from './ImageGalleryItem/ImageGalleryItem';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
@@ -22,6 +21,8 @@ export class App extends Component {
     isLoading: true,
     error: null,
     modal: [],
+    modalOpen: false,
+    showButton: true,
   };
 
   // loading = () => {
@@ -35,12 +36,9 @@ export class App extends Component {
       const response = await axios.get(
         `https://pixabay.com/api/?q=${this.state.phrase}&page=1&key=37582699-55c82cc3a73d61bfb82f2913b&image_type=photo&orientation=horizontal&per_page=12`
       );
-      this.setState({ images: response.data.hits });
+      this.setState({ images: response.data.hits, isLoading: false });
     } catch (error) {
       this.setState({ error });
-    } finally {
-      this.setState({ isLoading: false });
-      // this.loading();
     }
   }
   // async componentDidUpdate() {
@@ -59,21 +57,24 @@ export class App extends Component {
           `https://pixabay.com/api/?q=${phrase}&page=1&key=37582699-55c82cc3a73d61bfb82f2913b&image_type=photo&orientation=horizontal&per_page=12`
         )
         .then(response => {
-          this.setState({ images: response.data.hits, phrase: phrase });
+          if (response.data.hits.length === 12) {
+            this.setState({ showButton: true });
+          }
+          this.setState({
+            images: response.data.hits,
+            phrase: phrase,
+            isLoading: false,
+          });
         });
     } catch (error) {
       this.setState({ error });
-    } finally {
-      this.setState({ isLoading: false });
-      // this.loading();
     }
   }
 
   loadMore = () => {
     try {
-      this.setState({ isLoading: true });
+      this.setState({ isLoading: true, page: this.state.page + 1 });
       // this.loading();
-      this.setState({ page: this.state.page + 1 });
       axios
         .get(
           `https://pixabay.com/api/?q=${this.state.phrase}&page=${
@@ -81,36 +82,61 @@ export class App extends Component {
           }&key=37582699-55c82cc3a73d61bfb82f2913b&image_type=photo&orientation=horizontal&per_page=12`
         )
         .then(response => {
+          console.log(response.data.hits);
+          if (response.data.hits.length < 12) {
+            this.setState({ showButton: false });
+          }
           this.setState(prev => ({
             images: [...prev.images, ...response.data.hits],
+            isLoading: false,
           }));
         });
     } catch (error) {
       this.setState({ error });
-    } finally {
-      this.setState({ isLoading: false });
-      // this.loading();
     }
+
+    // this.loading();
   };
 
   showModal = image => {
     const photo = this.state.images.filter(el => el.webformatURL === image.src);
-    this.setState({ modal: [photo[0].largeImageURL, image.alt] });
+    this.setState({
+      modal: [photo[0].largeImageURL, image.alt],
+      modalOpen: true,
+    });
   };
 
-  render() {
+  closeModal = e => {
+    if (e.target.nodeName === 'DIV' || e.key === 'Escape') {
+      this.setState({ modalOpen: false });
+    }
+  };
+
+  render = () => {
     return (
       <div className={styles.App}>
         <>{this.state.isLoading && <Loader />}</>
         <Searchbar onSubmit={this.searchForImages} onChange />
         <>
           {this.state.images.length > 0 && (
-            <ImageGallery images={this.state.images} modal={this.showModal} />
+            <ImageGallery
+              images={this.state.images}
+              modal={this.showModal}
+              openModal={this.openModal}
+            />
           )}
         </>
-        <Button onClick={this.loadMore} />
-        <>{this.state.modal.length > 0 && <Modal image={this.state.modal} />}</>
+        {this.state.showButton === true && <Button onClick={this.loadMore} />}
+        <>
+          {this.state.modalOpen === true && (
+            <Modal
+              image={this.state.modal}
+              isOpen={this.state.modalOpen}
+              closeModal={this.closeModal}
+            />
+          )}
+        </>
       </div>
     );
-  }
+  };
 }

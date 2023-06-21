@@ -1,5 +1,5 @@
 import styles from './ImageGallery.module.css';
-
+import propTypes from 'prop-types';
 export const ImageGallery = ({ images, modal }) => {
   return (
     <ul className={styles.ImageGallery}>
@@ -15,4 +15,9 @@ export const ImageGallery = ({ images, modal }) => {
       ))}
     </ul>
   );
+};
+
+ImageGallery.propTypes = {
+  images: propTypes.array,
+  modal: propTypes.func,
 };
