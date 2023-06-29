@@ -1,26 +1,28 @@
 import styles from './Modal.module.css';
-import { Component } from 'react';
+import React, { useEffect, useRef } from 'react';
+import propTypes from 'prop-types';
 
-export class Modal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isOpen: true,
-    };
-  }
-  render = () => {
-    return (
-      this.state.isOpen === true && (
-        <div
-          className={styles.Overlay}
-          onClick={e => this.props.closeModal(e)}
-          onKeyDown={e => this.props.closeModal(e)}
-        >
-          <div className={styles.Modal}>
-            <img src={this.props.image[0]} alt={this.props.image[1]} />
-          </div>
-        </div>
-      )
-    );
-  };
-}
+export const Modal = ({ image, closeModal }) => {
+  const overlayRef = useRef(null);
+  useEffect(() => {
+    overlayRef.current.focus();
+  }, []);
+  return (
+    <div
+      className={styles.Overlay}
+      tabIndex={0}
+      ref={overlayRef}
+      onKeyDown={e => closeModal(e)}
+      onClick={e => closeModal(e)}
+    >
+      <div className={styles.Modal}>
+        <img src={image[0]} alt={image[1]} />
+      </div>
+    </div>
+  );
+};
+
+Modal.propTypes = {
+  image: propTypes.array,
+  closeModal: propTypes.func,
+};
