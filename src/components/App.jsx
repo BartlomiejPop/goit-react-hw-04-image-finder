@@ -40,7 +40,9 @@ export const App = () => {
           `https://pixabay.com/api/?q=${phrase}&page=1&key=37582699-55c82cc3a73d61bfb82f2913b&image_type=photo&orientation=horizontal&per_page=12`
         )
         .then(response => {
-          if (response.data.hits.length === 12) {
+          if (response.data.hits.length < 12) {
+            changeShowButton(false);
+          } else {
             changeShowButton(true);
           }
           changeImages(response.data.hits);
